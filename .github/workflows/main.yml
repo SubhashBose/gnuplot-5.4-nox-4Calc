@@ -23,9 +23,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt install libgd-dev
-          wget https://jaist.dl.sourceforge.net/project/gnuplot/gnuplot/5.4.1/gnuplot-5.4.1.tar.gz -o gnuplot.tar.gz
+          wget https://jaist.dl.sourceforge.net/project/gnuplot/gnuplot/5.4.1/gnuplot-5.4.1.tar.gz -O gnuplot.tar.gz
           tar -xvzf gnuplot.tar.gz
-          cd gnuplot
+          cd gnuplot*
           ./configure --with-gd --with-bitmap-terminals
           make
           
