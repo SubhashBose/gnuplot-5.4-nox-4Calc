@@ -30,7 +30,7 @@ jobs:
           make
           
       - name: Test
-        run: ./src/gnuplot -V
+        run: ./gnuplot*/src/gnuplot -V
       
       - name: Create tag
         id: create_tag
@@ -41,7 +41,7 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: src/gnuplot
+          files: gnuplot*/src/gnuplot
           tag_name: ${{ steps.create_tag.outputs.tag }}
           #body_path: rel_note.txt
         env:
