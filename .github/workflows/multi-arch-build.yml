@@ -1,0 +1,52 @@
+name: Multi ARCH build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  create-tag:
+    runs-on: ubuntu-24.04
+    outputs:
+      tag: ${{ steps.create_tag.outputs.tag }}
+    steps:
+      - name: Create tag
+        id: create_tag
+        run: |
+          tag=$(date +%Y-%m-%d_%H%M%S)
+          echo "tag=$tag" >> $GITHUB_OUTPUT
+
+  build:
+    needs: create-tag
+    runs-on: ubuntu-24.04${{ matrix.runner }}
+    strategy:
+      matrix:
+        # build targets
+        include:
+          - runner: ''
+            arch: amd64
+          - runner: '-arm'
+            arch: arm64
+    steps:
+      - uses: actions/checkout@v3
+      - name: Compile
+        run: |
+          sudo apt-get update
+          sudo apt install libgd-dev
+          wget https://jaist.dl.sourceforge.net/project/gnuplot/gnuplot/5.4.1/gnuplot-5.4.1.tar.gz -O gnuplot.tar.gz
+          tar -xvzf gnuplot.tar.gz
+          cd `ls -d gnuplot-*`
+          ./configure --with-gd --with-bitmap-terminals
+          make
+          
+      - name: Test
+        run: ./gnuplot*/src/gnuplot -V
+      - name: Rename binary
+        run: mv ./gnuplot*/src/gnuplot gnuplot-${{ matrix.arch }}
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: gnuplot-${{ matrix.arch }}
+          tag_name: ${{ needs.create-tag.outputs.tag }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
